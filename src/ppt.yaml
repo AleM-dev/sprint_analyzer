@@ -1,0 +1,341 @@
+--- #Puyo Puyo Tetris defaults
+sprint:
+  lines: 40
+  num_pieces: 7
+
+video:
+  width: 1920
+  height: 1080
+  fps: 60
+
+frame: #size of the frame used by the program. Smaller = faster
+  scale: 0.5
+
+playfield: #values in pixels when the unit is not specified
+  min_x: 308
+  max_y: 879
+  square_size: 36
+  border_thickness: 2
+  height: 21 #squares
+  width: 10 #squares
+  row_21_h: 11 #height in pixels of the 21st row
+  effect_space: 2 #minimum space between a piece and its lock animation bubble
+
+pieces:
+  empty: 0
+  i: 1
+  j: 2
+  l: 3
+  o: 4
+  s: 5
+  t: 6
+  z: 7
+  garbage: 8
+  effect: 9
+  max_val: 9 
+  unknown: 100 #needs to be more than 2 * max_val
+  proportions: [1, 1.5, 4]
+  colors: [
+    [0, 0, 0],
+    [255, 255, 0],
+    [255, 0, 0],
+    [0, 128, 255],
+    [0, 255, 255],
+    [0, 255, 128],
+    [255, 0, 255],
+    [0, 0, 255],
+    [128, 128, 128],
+    [255, 255, 255]    
+  ]
+  names: [
+    'empty',
+    'i_piece',
+    'j_piece',
+    'l_piece',
+    'o_piece',
+    's_piece',
+    't_piece',
+    'z_piece',
+    'garbage',
+    'effect'
+  ]
+  i_piece:
+    id: 1
+    color: [255, 255, 0]
+    proportion: 4
+    rotations: #pieces needs to be flipped in the vertical axis
+      [
+      [[1,1,1,1]],
+      [ [1],
+        [1],
+        [1],
+        [1] ]
+    ]
+  j_piece:
+    id: 2
+    color: [255, 0, 0]
+    proportion: 1.5
+    rotations: [
+      [ [1, 0, 0],
+        [1, 1, 1] ],
+      [ [1, 1],
+        [1, 0],
+        [1, 0] ],
+      [ [1, 1, 1],
+        [0, 0, 1] ],
+      [ [0, 1],
+        [0, 1],
+        [1, 1] ]
+    ]
+  l_piece:
+    id: 3
+    color: [0, 128, 255]
+    proportion: 1.5
+    rotations: [
+      [ [0, 0, 1],
+        [1, 1, 1] ],
+      [ [1, 1],
+        [0, 1],
+        [0, 1] ],
+      [ [1, 1, 1],
+        [1, 0, 0] ],
+      [ [1, 0],
+        [1, 0],
+        [1, 1] ]
+    ]
+  o_piece:
+    id: 4
+    color: [0, 255, 255]
+    proportion: 1
+    rotations: [
+      [ [1, 1],
+        [1, 1] ]
+    ]
+  s_piece:
+    id: 5
+    color: [0, 255, 128]
+    proportion: 1.5
+    rotations: [
+      [ [0, 1, 1],
+        [1, 1, 0] ],
+      [ [1, 0],
+        [1, 1],
+        [0, 1] ]
+    ]
+  t_piece:
+    id: 6
+    color: [255, 0, 255]
+    proportion: 1.5
+    rotations: [
+      [ [0, 1, 0],
+        [1, 1, 1] ],
+      [ [1, 0],
+        [1, 1],
+        [1, 0] ],
+      [ [1, 1, 1],
+        [0, 1, 0] ],
+      [ [0, 1],
+        [1, 1],
+        [0, 1] ]
+    ]
+  z_piece:
+    id: 7
+    color: [0, 0, 255]
+    proportion: 1.5
+    rotations: [
+      [ [1, 1, 0],
+        [0, 1, 1] ],
+      [ [0, 1],
+        [1, 1],
+        [1, 0] ]
+    ]
+
+
+hold:
+  min_x: 176
+  min_y: 211
+  square_size: 28
+  border_thickness: 1
+  height: 2 #squares
+  width: 4 #squares
+
+next_1:
+  min_x: 705
+  min_y: 181
+  square_size: 28
+  border_thickness: 1
+  height: 2 #squares
+  width: 4 #squares
+
+next_n:
+  min_x: 710
+  min_y: 293
+  square_size: 22
+  border_thickness: 1
+  height: 2 #squares
+  width: 4 #squares
+  vertical_gap: 100 #space between each piece in the "Next" queue
+  previews: 4 #number of additional piecreturnes in the "Next" queue
+
+timer: #digits of the timer
+  width: 33
+  height: 43
+  numbers: 10
+  digits: 5
+  minute_unit: 0
+  second_ten: 1
+  second_unit: 2
+  decisecond: 3
+  centisecond: 4
+  #min_xs: [1455, 1535, 1575, 1655, 1695] #scarlet
+  min_xs: [1450, 1530, 1570, 1650, 1690] #me
+  #min_xs: [1495, 1575, 1615, 1695, 1735]
+  min_y: 512
+  end_count: 3 #number of repeated frames to cound as the final time
+  #time_advance: 18 #seconds to skip to find the final time
+  #frame_skip: 0.5 #seconds to skip when searching for the final time
+
+
+delay: #in seconds
+  entry: 0.067 #approximated
+  lock: 0.05 #approximated
+  line_clear: [0, 0.584, 0.584, 0.667, 0.75, 0.017] #5 = perfect clear
+  perfect_clear: 5 #index of perfect clears
+
+overlay: 
+  max_row: 17 #maximum row in the playfield that is not covered by text at the beginning of a replay
+  line_clear_animation: 0.667 #time in seconds that takes for a cleared line to disappear 
+  replay_text: 0.667 #time in seconds that overlayed texts stays over the playfield
+  ignore_squares: [[0, 19],[0, 20]] #ignore these squares while time < replay_text
+  tetris: 1.5 #time in seconds that overlayed texts stays over the playfield
+  perfect_clear: 1.334 #time in seconds that overlayed texts stays over the playfield
+  pc_min_x: 2 #x coordinate in the board of the 'Perfect Clear' text overlay
+  pc_max_x: 7 #x coordinate in the board of the 'Perfect Clear' text overlay
+  pc_min_y: 9 
+  pc_max_y: 16
+  pc_animation: 1.5
+  tetris_min_x: 2
+  tetris_max_x: 7
+  tetris_min_y: 1
+  tetris_max_y: 2
+  tetris_animation: 1.5
+  
+
+threshold: #used to detect changes in the frame
+  square_diff: 10 #>10 means the square is filled with a piece
+  piece_diff: 5 #>5 means a change in the held piece or in the "Next" queue
+  line_clear: 128 #>128 means a line was cleared
+  piece_intensity: 48 #>48 it is a filled square in the 'Next' queue
+  digit: 224 #>224 is the color of a digit
+  match: 0.8 #>0.8 means a pattern match
+  zero_min_area: 0.1 #not considered a '0' if area < 0.1
+  zero_max_area: 0.9 #not considered a '0' if area > 0.9
+  piece_min_area: 0.7 #not considered a piece if area < 0.5
+  piece_min_std: 20 #not considered a piece if standard deviation of color < 20
+  next_count: 3 #>3 pieces in the "Next" queue need to change to count as a new piece
+  binarize: 32 #>32 means it is a foreground pixel
+
+layout: #statistics shown on screen
+  #values in percent of the screen
+  #colors in BGR format
+  time:
+    min_x: 0.5
+    width: 0.38
+    min_y: 0
+    height: 0.2
+    horizontal_gap: 0.03
+    description_color: [0, 255, 255]
+    value_color: [255, 255, 255]
+    background_color: [48, 0, 0] 
+    alpha: 0.9
+    text: [
+      'Time: ',
+      'Pieces Per Second (PPS): ',
+      'PPS (without Line Clear Delay): ',
+      'Estimated Time (PC Finish): ',
+      ['Estimated Time (', ' pieces):']
+    ]
+    font_gap_ratio: 1.2
+  pieces:
+    min_x: 0.5
+    width: 0.38
+    min_y: 0.2
+    height: 0.6
+    horizontal_gap: 0.03
+    description_color: [0, 255, 255]
+    value_color: [255, 255, 255]
+    line_clear_color: [255, 255, 255]
+    hold_color: [0, 255, 255]
+    hold: 0.08
+    arrow: 0.04
+    current: 0.08
+    count: 0.11
+    piece_time: 0.12
+    bar: 0.3
+    amount: 15
+    background_color: [0, 16, 0] #bgr
+    alpha: 0.9
+    font_gap_ratio: 1
+  lines:
+    min_x: 0.5
+    width: 0.38
+    min_y: 0.8
+    height: 0.2
+    horizontal_gap: 0.03
+    description_color: [0, 255, 255]
+    description_width: 0.7
+    value_color: [255, 255, 255]
+    background_color: [0, 0, 32] #bgr
+    alpha: 0.9
+    font_gap_ratio: 1.2
+    text: [
+      'Pieces: ',
+      'Holds: ',
+      'Line Clears: ',
+      'Perfect Clears: ',
+      'Total Lines: '
+    ]
+  player:
+    min_x: 0
+    width: 0.5
+    min_y: 0.95
+    height: 0.05
+    horizontal_gap: 0.02
+    description_color: [0, 255, 255]
+    description_width: 0.7
+    value_color: [255, 255, 255]
+    background_color: [0, 0, 0] #bgr
+    alpha: 0.9
+    font_gap_ratio: 1
+    text: [''
+    ]
+  playfield:
+    min_x: 0.88
+    width: 0.121
+    min_y: 0
+    height: 1
+    num_rows: 48
+    text: 'Time Map'
+    description_color: [0, 255, 255]
+    text_color: [255, 255, 255]
+    background_color: [0, 0, 0] 
+    row_40_color: [0,255,255]
+    line_color: [48,48,48]
+    piece_border_color: [255,255,255]
+    line_clear_color: [192, 192, 192]
+    perfect_clear_color: [51, 255, 153]
+    hold_color: [0, 255, 255]
+    horizontal_gap: 0.02
+    vertical_gap: 0.01
+    alpha: 0.9
+  histogram:
+    min_x: 0.5
+    width: 0.5
+    min_y: 0.7
+    height: 0.3
+    background_color: [0, 0, 0] 
+    horizontal_gap: 0.02
+    vertical_gap: 0.01125
+    wall_width: 0.7
+    alpha: 0.9
+  
