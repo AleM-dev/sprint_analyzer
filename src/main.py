@@ -531,11 +531,7 @@ def process_video():
                 print('Colors defined', colors_defined)
             if colors_defined == defaults['sprint']['num_pieces']:
                 print('All colors defined')
-                pieces_read = True
-
-        if not training_complete and session.frame_count == 444:
-            playfield.set_background_bottom(frame, defaults['overlay']['max_row'])
-            
+                pieces_read = True    
 
         if training_complete and session.frame_count >= timing.start_frame and not ended:
             if session.frame_count == timing.start_frame:
