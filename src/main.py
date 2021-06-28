@@ -351,9 +351,9 @@ def advance_time(frame_count, fps, s): #advances s seconds to find the final tim
     return frame_count    
 
 def process_video():
-    folder = ''
+    folder = '/home/alexandre/Desktop/temp/'
     fileName = '3126'
-    extension = 'mp4'
+    extension = '.mp4'
     player_name = ''
 
     session = SessionStats()
@@ -812,7 +812,7 @@ def process_video():
         cv2.imshow('frame',original_frame)
         #if prev_frame is not None:
         #    cv2.imshow('timer', prev_frame)
-        cv2.imshow('back_diff',back_diff)
+        #cv2.imshow('back_diff',back_diff)
         #if session.frame_count > 1:
         #    cv2.imshow('prev_diff',prev_diff)
 
