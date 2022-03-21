@@ -351,8 +351,8 @@ def advance_time(frame_count, fps, s): #advances s seconds to find the final tim
     return frame_count    
 
 def process_video():
-    folder = '/home/alexandre/Desktop/temp/'
-    fileName = '3126'
+    folder = '/home/alexandre/Downloads/'
+    fileName = '210629'
     extension = '.mp4'
     player_name = ''
 
@@ -531,9 +531,10 @@ def process_video():
                 print('Colors defined', colors_defined)
             if colors_defined == defaults['sprint']['num_pieces']:
                 print('All colors defined')
-                pieces_read = True    
+                pieces_read = True
 
         if training_complete and session.frame_count >= timing.start_frame and not ended:
+            
             if session.frame_count == timing.start_frame:
                 next_piece = nexts[0].current_frame
                 next_piece_id = FrameProcessing.map_frame_to_piece(defaults, next_piece, pieces)
@@ -735,7 +736,7 @@ def process_video():
                         first_hold = True 
                         prev_hold_id = current_piece_id
                         print('First Hold. Hold id is', prev_hold_id)
-              
+            
                     prev_hold_frame = session.frame_count
                     frame_hold_update = session.frame_count
                     if camera:

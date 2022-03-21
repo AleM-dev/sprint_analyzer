@@ -140,6 +140,8 @@ class FrameProcessing:
     def map_frame_to_piece(df, frame, pieces):
         binary = FrameProcessing.color_to_binary(frame, df['threshold']['piece_intensity'])
         cropped = FrameProcessing.remove_zero_rows_cols(binary)
+        print(cropped)
+        
         proportion = FrameProcessing.piece_proportion(df['pieces']['proportions'], cropped.shape[0],cropped.shape[1] )
         return FrameProcessing.match_binary_piece(pieces, cropped, proportion)
 
