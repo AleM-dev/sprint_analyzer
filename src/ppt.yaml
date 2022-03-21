@@ -12,8 +12,8 @@ frame: #size of the frame used by the program. Smaller = faster
   scale: 0.5
 
 playfield: #values in pixels when the unit is not specified
-  min_x: 308
-  max_y: 879
+  min_x: 308 #303
+  max_y: 879 #875
   square_size: 36
   border_thickness: 2
   height: 21 #squares
@@ -152,24 +152,24 @@ pieces:
 
 
 hold:
-  min_x: 176
-  min_y: 211
+  min_x: 171 #176 
+  min_y: 206 #211
   square_size: 28
   border_thickness: 1
   height: 2 #squares
   width: 4 #squares
 
 next_1:
-  min_x: 705
-  min_y: 181
+  min_x: 700 #705
+  min_y: 176 #181
   square_size: 28
   border_thickness: 1
   height: 2 #squares
   width: 4 #squares
 
 next_n:
-  min_x: 710
-  min_y: 293
+  min_x: 705 #710 
+  min_y: 288 #293
   square_size: 22
   border_thickness: 1
   height: 2 #squares
@@ -178,8 +178,10 @@ next_n:
   previews: 4 #number of additional piecreturnes in the "Next" queue
 
 timer: #digits of the timer
-  width: 33
-  height: 43
+#  width: 33
+#  height: 43
+  width: 37
+  height: 50
   numbers: 10
   digits: 5
   minute_unit: 0
@@ -187,10 +189,11 @@ timer: #digits of the timer
   second_unit: 2
   decisecond: 3
   centisecond: 4
-  #min_xs: [1455, 1535, 1575, 1655, 1695] #scarlet
-  min_xs: [1450, 1530, 1570, 1650, 1690] #me
+  min_xs: [1456, 1537, 1579, 1660, 1699] 
+#  min_xs: [1450, 1530, 1570, 1650, 1690] #me
   #min_xs: [1495, 1575, 1615, 1695, 1735]
-  min_y: 512
+  #min_y: 512
+  min_y: 498
   end_count: 3 #number of repeated frames to cound as the final time
   #time_advance: 18 #seconds to skip to find the final time
   #frame_skip: 0.5 #seconds to skip when searching for the final time
@@ -227,7 +230,7 @@ threshold: #used to detect changes in the frame
   line_clear: 128 #>128 means a line was cleared
   piece_intensity: 48 #>48 it is a filled square in the 'Next' queue
   digit: 224 #>224 is the color of a digit
-  match: 0.8 #>0.8 means a pattern match
+  match: 0.6 #>0.8 means a pattern match
   zero_min_area: 0.1 #not considered a '0' if area < 0.1
   zero_max_area: 0.9 #not considered a '0' if area > 0.9
   piece_min_area: 0.7 #not considered a piece if area < 0.5

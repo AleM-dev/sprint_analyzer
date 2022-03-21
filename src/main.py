@@ -139,6 +139,7 @@ def timer_digits_match(frame_digits, df_threshold):
     for i in range(0, len(frame_digits)-1):
         frame_i = FrameProcessing.color_to_binary(frame_digits[i].current_frame, df_threshold['digit'])
         score = FrameProcessing.compute_match(last_digit, frame_i)
+    
         if score >= df_threshold['match']:
             count_matches += 1
         if count_matches == 4:
@@ -349,7 +350,7 @@ def advance_time(frame_count, fps, s): #advances s seconds to find the final tim
     frame_count += s*fps
     return frame_count    
 
-def process_video(video_name):
+def process_video(video_name, total_pieces = 100):
 
     session = SessionStats()
     pieces_stats = []
@@ -421,7 +422,7 @@ def process_video(video_name):
     timing.fastest_time = 13
     timing.slowest_time_corrected = 50
     timing.slowest_time = 120
-    timing.total_pieces = 100
+    timing.total_pieces = total_pieces
     camera = False
 
     replay_overlay = int(timing.fps*defaults['overlay']['replay_text'])
@@ -717,8 +718,8 @@ def process_video(video_name):
         cv2.imshow('frame',original_frame)
 
         key = cv2.waitKey(1)
-#        while key not in [ord('q'), ord('k'),ord('l')]:
-#            key = cv2.waitKey(0)
+        #while key not in [ord('q'), ord('k'),ord('l')]:
+        #    key = cv2.waitKey(0)
         if key == ord('l'):
             session.frame_count -= 5
             if session.frame_count < 0:
@@ -736,4 +737,4 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print('Error! Missing path to video')
     else:
-        process_video(sys.argv[1])
+        process_video(sys.argv[1], sys.argv[2])
