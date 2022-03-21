@@ -508,7 +508,11 @@ class Draw:
             entry_delay = int(defaults['delay']['entry']*timing.fps)
             entry_frame = stat.start_frame - entry_delay
             lock_frame = stat.end_frame - entry_delay
-            entry_time = map_frame_time[entry_frame]
+
+            if entry_frame in map_frame_time:
+                entry_time = map_frame_time[entry_frame]
+            else:
+                entry_time=[0,0,0,0,0]
             lock_time = map_frame_time[lock_frame]
 
             if stat.count == timing.total_pieces:
@@ -812,7 +816,10 @@ class Draw:
                     stat = pieces_stats[sq-1]
                     entry_frame = stat.start_frame - entry_delay
                     lock_frame = stat.end_frame - entry_delay
-                    entry_time = map_frame_time[entry_frame]
+                    if entry_frame in map_frame_time:
+                        entry_time = map_frame_time[entry_frame]
+                    else:
+                        entry_time=[0,0,0,0,0]
                     lock_time = map_frame_time[lock_frame]
 
                     diff_corrected = Time.time_diff_without_lcd(lock_time, entry_time, stat.lines_cleared, df)

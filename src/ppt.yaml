@@ -71,36 +71,6 @@ pieces:
         [1],
         [1] ]
     ]
-    spawn_column: 3
-    spawn_row: 17
-    srs_size: 4
-    srs_rotations:
-      [
-        [
-          [0, 0, 0, 0],
-          [1, 1, 1, 1],
-          [0, 0, 0, 0],
-          [0, 0, 0, 0]
-        ],
-        [
-          [0, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 1, 0, 0],
-          [0, 1, 0, 0]
-        ],
-        [
-          [0, 0, 0, 0],
-          [0, 0, 0, 0],
-          [1, 1, 1, 1],
-          [0, 0, 0, 0]
-        ],
-        [
-          [0, 0, 1, 0],
-          [0, 0, 1, 0],
-          [0, 0, 1, 0],
-          [0, 0, 1, 0]
-        ]
-      ]
   j_piece:
     id: 2
     color: [255, 0, 0]
@@ -117,32 +87,6 @@ pieces:
         [0, 1],
         [1, 1] ]
     ]
-    spawn_column: 3
-    spawn_row: 18
-    srs_size: 3
-    srs_rotations:
-      [
-        [
-          [1, 0, 0],
-          [1, 1, 1],
-          [0, 0, 0]
-        ],
-        [
-          [0, 1, 1],
-          [0, 1, 0],
-          [0, 1, 0]
-        ],
-        [
-          [0, 0, 0],
-          [1, 1, 1],
-          [0, 0, 1]
-        ],
-        [
-          [0, 1, 0],
-          [0, 1, 0],
-          [1, 1, 0]
-        ]
-      ]
   l_piece:
     id: 3
     color: [0, 128, 255]
@@ -159,33 +103,6 @@ pieces:
         [1, 0],
         [1, 1] ]
     ]
-    spawn_column: 3
-    spawn_row: 18
-    srs_size: 3
-
-    srs_rotations:
-      [
-        [
-          [0, 0, 1],
-          [1, 1, 1],
-          [0, 0, 0]
-        ],
-        [
-          [0, 1, 0],
-          [0, 1, 0],
-          [0, 1, 1]
-        ],
-        [
-          [0, 0, 0],
-          [1, 1, 1],
-          [1, 0, 0]
-        ],
-        [
-          [1, 1, 0],
-          [0, 1, 0],
-          [0, 1, 0]
-        ]
-      ]
   o_piece:
     id: 4
     color: [0, 255, 255]
@@ -194,28 +111,6 @@ pieces:
       [ [1, 1],
         [1, 1] ]
     ]
-    spawn_column: 4
-    spawn_row: 19
-    srs_size: 2
-    srs_rotations:
-      [
-        [
-          [1, 1],
-          [1, 1]
-        ],
-        [
-          [1, 1],
-          [1, 1]
-        ],
-        [
-          [1, 1],
-          [1, 1]
-        ],
-        [
-          [1, 1],
-          [1, 1]
-        ]
-      ]
   s_piece:
     id: 5
     color: [0, 255, 128]
@@ -227,32 +122,6 @@ pieces:
         [1, 1],
         [0, 1] ]
     ]
-    spawn_column: 3
-    spawn_row: 18
-    srs_size: 3
-    srs_rotations:
-      [
-        [
-          [0, 1, 1],
-          [1, 1, 0],
-          [0, 0, 0]
-        ],
-        [
-          [0, 1, 0],
-          [0, 1, 1],
-          [0, 0, 1]
-        ],
-        [
-          [0, 0, 0],
-          [0, 1, 1],
-          [1, 1, 0]
-        ],
-        [
-          [1, 0, 0],
-          [1, 1, 0],
-          [0, 1, 0]
-        ]
-      ]
   t_piece:
     id: 6
     color: [255, 0, 255]
@@ -269,32 +138,6 @@ pieces:
         [1, 1],
         [0, 1] ]
     ]
-    spawn_column: 3
-    spawn_row: 18
-    srs_size: 3
-    srs_rotations:
-      [
-        [
-          [0, 1, 0],
-          [1, 1, 1],
-          [0, 0, 0]
-        ],
-        [
-          [0, 1, 0],
-          [0, 1, 1],
-          [0, 1, 0]
-        ],
-        [
-          [0, 0, 0],
-          [1, 1, 1],
-          [0, 1, 0]
-        ],
-        [
-          [0, 1, 0],
-          [1, 1, 0],
-          [0, 1, 0]
-        ]
-      ]
   z_piece:
     id: 7
     color: [0, 0, 255]
@@ -306,32 +149,7 @@ pieces:
         [1, 1],
         [1, 0] ]
     ]
-    spawn_column: 3
-    spawn_row: 18
-    srs_size: 3
-    srs_rotations:
-      [
-        [
-          [1, 1, 0],
-          [0, 1, 1],
-          [0, 0, 0]
-        ],
-        [
-          [0, 0, 1],
-          [0, 1, 1],
-          [0, 1, 0]
-        ],
-        [
-          [0, 0, 0],
-          [1, 1, 0],
-          [0, 1, 1]
-        ],
-        [
-          [0, 1, 0],
-          [1, 1, 0],
-          [1, 0, 0]
-        ]
-      ]
+
 
 hold:
   min_x: 176
@@ -357,7 +175,7 @@ next_n:
   height: 2 #squares
   width: 4 #squares
   vertical_gap: 100 #space between each piece in the "Next" queue
-  previews: 4 #number of additional pieces in the "Next" queue
+  previews: 4 #number of additional piecreturnes in the "Next" queue
 
 timer: #digits of the timer
   width: 33
@@ -373,7 +191,7 @@ timer: #digits of the timer
   min_xs: [1450, 1530, 1570, 1650, 1690] #me
   #min_xs: [1495, 1575, 1615, 1695, 1735]
   min_y: 512
-  end_count: 3 #number of repeated frames to count as the final time
+  end_count: 3 #number of repeated frames to cound as the final time
   #time_advance: 18 #seconds to skip to find the final time
   #frame_skip: 0.5 #seconds to skip when searching for the final time
 
@@ -407,7 +225,7 @@ threshold: #used to detect changes in the frame
   square_diff: 10 #>10 means the square is filled with a piece
   piece_diff: 5 #>5 means a change in the held piece or in the "Next" queue
   line_clear: 128 #>128 means a line was cleared
-  piece_intensity: 64 #>48 it is a filled square in the 'Next' queue
+  piece_intensity: 48 #>48 it is a filled square in the 'Next' queue
   digit: 224 #>224 is the color of a digit
   match: 0.8 #>0.8 means a pattern match
   zero_min_area: 0.1 #not considered a '0' if area < 0.1

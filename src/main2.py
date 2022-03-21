@@ -1,11 +1,8 @@
 import numpy as np
 import cv2
-#import scipy.misc
-#import reader
+import scipy.misc
+import reader
 import copy
-import os
-import sys
-from pathlib import Path
 
 from frame_rectangle import FrameRectangle
 from drawing import Draw
@@ -186,25 +183,29 @@ def hold_changed(defaults, hold, session):
     return False      
 
 def line_cleared(df, playfield):
-    xs = [0, playfield.width-1]
     cleared = []
 
     for y in range(playfield.height):
-        sq1 = playfield.frame_board[y][xs[0]]
-        diff1 = sq1.background_diff()
-        sq2 = playfield.frame_board[y][xs[1]]
-        diff2 = sq2.background_diff()
-        
-        avgs1 = [np.average(sq1.current_frame[:,:,0]), np.average(sq1.current_frame[:,:,1]), np.average(sq1.current_frame[:,:,2])]
-        std1 = np.std(avgs1)
-        avgs2 = [np.average(sq2.current_frame[:,:,0]), np.average(sq2.current_frame[:,:,1]), np.average(sq2.current_frame[:,:,2])]
-        std2 = np.std(avgs2)
-    
-        if diff1 is not None and diff2 is not None:
+        count_white = 0
+        for x in range(10):
+            sq1 = playfield.frame_board[y][x]
+            diff1 = sq1.background_diff()
+            sq2 = playfield.frame_board[y][x]
+            diff2 = sq2.background_diff()
+            
+            avgs1 = [np.average(sq1.current_frame[:,:,0]), np.average(sq1.current_frame[:,:,1]), np.average(sq1.current_frame[:,:,2])]
+            std1 = np.std(avgs1)
+            avgs2 = [np.average(sq2.current_frame[:,:,0]), np.average(sq2.current_frame[:,:,1]), np.average(sq2.current_frame[:,:,2])]
+            std2 = np.std(avgs2)
             avg1 = np.average(diff1)
             avg2 = np.average(diff2)
-            if avg1 > df['line_clear'] and avg2 > df['line_clear'] and std1 < df['square_diff'] and std2 < df['square_diff'] :
-                cleared.append(y)
+            if avg1 > df['line_clear'] and avg2 > df['line_clear'] and std1 < df['square_diff'] and std2 < df['square_diff']:
+                count_white += 1
+            else:
+                break
+    
+        if diff1 is not None and diff2 is not None and count_white == 10:
+            cleared.append(y)
 
     return cleared
 
@@ -306,6 +307,12 @@ def playfield_diff(df_threshold, playfield):
                     sq_candidates.append((y,x))
     return sq_candidates
                     
+def playfield_frame_diff(df_threshold, cur_playfield, prev_playfield):
+    for y in range(playfield.height):
+        for x in range(playfield.width):
+            cur_sq = playfield.frame_board[y][x]
+    
+
 def update_playfield(df, playfield, pieces, ignore):
     for y in range(playfield.height-1):
         for x in range(playfield.width):
@@ -349,14 +356,16 @@ def advance_time(frame_count, fps, s): #advances s seconds to find the final tim
     frame_count += s*fps
     return frame_count    
 
-def process_video(video_name):
+def process_video(piece_tracking = False):
+    folder = '/home/alexandre/Downloads/'
+    fileName = '210629'
+    extension = '.mp4'
+    player_name = ''
 
     session = SessionStats()
     pieces_stats = []
 
-    parent_path = Path(os.getcwd()).parent.absolute()
-
-    cap = cv2.VideoCapture(os.path.join(parent_path, 'input', video_name))
+    cap = cv2.VideoCapture(folder + fileName + extension)
     
     cap_width = cap.get(3)
     cap_height = cap.get(4)
@@ -370,9 +379,8 @@ def process_video(video_name):
     frame_height = int(defaults['video']['height']*scale)
     timing = TimingStats(cap.get(cv2.CAP_PROP_FPS))
 
-    print(os.path.join(os.getcwd(), video_name))
+    out = cv2.VideoWriter('/home/alexandre/Desktop/temp/' + fileName + '.avi', fourcc, timing.fps, (frame_width, frame_height))
 
-    out = cv2.VideoWriter(os.path.join(parent_path, 'output', video_name), fourcc, timing.fps, (frame_width, frame_height))
 
     playfield = Playfield(defaults['playfield'], scale)
 
@@ -380,6 +388,8 @@ def process_video(video_name):
     nexts = None
     current_piece = None
     current_piece_id = -1
+    current_piece_srs_rotation = 0
+    current_piece_column = 0
     next_piece = None
     next_piece_id = -1
     prev_hold_id = -1
@@ -423,6 +433,15 @@ def process_video(video_name):
     timing.slowest_time = 120
     timing.total_pieces = 100
     camera = False
+    #camera = True
+    #timing.start_frame = 116
+    #timing.end_frame = 1475
+    #final_time = [0,3,1,7,5]
+#    pts1 = np.float32([[113, 90], [1200, 80], [116, 700], [1204, 696]])
+#    pts2 = np.float32([[0, 0], [960, 0], [0, 540], [960, 540]])
+#    pts1 = np.float32([[53, 144], [1171, 125], [152, 567], [1242, 703]])
+#    pts2 = np.float32([[84, 143], [892, 99], [154, 439], [960, 540]])
+
 
     replay_overlay = int(timing.fps*defaults['overlay']['replay_text'])
 
@@ -456,6 +475,7 @@ def process_video(video_name):
 
         set_current_frames(defaults, frame, playfield, hold, nexts, frame_digits)
         next_changed = nexts_changed(defaults['threshold'], nexts)
+        entry_delay = np.round(defaults['delay']['entry'] * timing.fps)
 
         if camera and not started and session.frame_count == timing.start_frame: 
             started = True
@@ -471,6 +491,15 @@ def process_video(video_name):
                 if set_piece_color(defaults, pieces, nexts[i]):
                     print('Color set')
                     colors_defined += 1
+            # cap.set(cv2.CAP_PROP_POS_FRAMES,timing.start_frame + timing.fps)
+            # ret, frame = cap.read()
+            # frame = cv2.resize(frame, (frame_width, frame_height)) 
+            # session.frame_count = cap.get(cv2.CAP_PROP_POS_FRAMES)
+            # print("  Background top set", session.frame_count)
+            # background_top = True
+            # playfield.set_background_top(frame, defaults['overlay']['max_row'])
+            # cap.set(cv2.CAP_PROP_POS_FRAMES,0)
+            # training_complete = True
             
         if not camera and not timer_initialized and timer_is_zero(frame_digits, defaults['threshold']):
             print('  Timer initialized')
@@ -514,168 +543,236 @@ def process_video(video_name):
                 pieces_read = True
 
         if training_complete and session.frame_count >= timing.start_frame and not ended:
-            if session.frame_count == timing.start_frame:
-                next_piece = nexts[0].current_frame
-                next_piece_id = FrameProcessing.map_frame_to_piece(defaults, next_piece, pieces)
-                print('Setting next piece id', next_piece_id)
-            timer_prev_digits = session.timer
-            if camera:
-                session.timer = Time.frames_to_time(session.frame_count-timing.start_frame, timing.fps)
-            else:
-                session.timer = match_digits(frame_digits, numbers, defaults['threshold'])
-            map_frame_time[session.frame_count] = session.timer
-
-            prev_squares_on_top = squares_on_top
-            squares_on_top = piece_on_top(defaults, playfield, ignore_squares)
-                
-            if ignore_line_clear > 0:
-                ignore_line_clear -= 1
-            else:
-                temp_lines = line_cleared(defaults['threshold'], playfield)
-                if len(temp_lines) > 0:
-                    piece_lines_cleared = len(temp_lines)
-                    ignore_line_clear = 20
-                    playfield.clear_lines(temp_lines)
-                    #board_id.clear_lines(temp_lines)
-                    board_updated = session.piece_count+1
-                if len(temp_lines) == 4:
-                    min_line = min(temp_lines)
-                    board_diff = [(6,0), (6,1), (6,2), (6,3)]
-                    board_id.update_with(board_diff, session.piece_count + 1, session.total_lines)        
-                    expiry = int(defaults['overlay']['tetris_animation']*timing.fps + session.frame_count)
-                    ignore_squares_ingame = update_ignore_tetris(defaults['overlay'], ignore_squares_ingame, playfield.width, playfield.height, min_line, expiry)
-            if ignore_next > 0:
-                ignore_next -= 1
-            if ignore_hold > 0:
-                ignore_hold -= 1
-            if next_changed:
-                entry_delay = np.round(defaults['delay']['entry'] * timing.fps)
-                if ignore_next == 0:
-                    ignore_next = entry_delay
-                    if not first_hold: #locked piece
-                        if session.piece_count >= 0:
-                            cap.set(cv2.CAP_PROP_POS_FRAMES, session.frame_count-entry_delay-1)
-                            ret, prev_frame = cap.read()
-                            if camera:
-                                matrix = cv2.getPerspectiveTransform(pts1, pts2)
-                                prev_frame = cv2.warpPerspective(prev_frame, matrix, (960, 540))
-                            else:
-                                prev_frame = cv2.resize(prev_frame, (frame_width, frame_height)) 
-                            playfield.set_current_frame(prev_frame)
-                            cap.set(cv2.CAP_PROP_POS_FRAMES, session.frame_count)
-
-                            temp_playfield = copy.deepcopy(playfield)
-                            update_playfield(defaults, temp_playfield, pieces, ignore_squares_ingame)
-                            ignore_squares_ingame = remove_from_ignore(ignore_squares_ingame, session.frame_count)
-                            if prev_playfield is not None:
-                                temp_playfield.fill_incorrect_squares(prev_playfield)   
-
-                            prev_playfield = copy.deepcopy(playfield)
-
-                            print('Session', session.piece_count, board_updated)
-                            print(temp_playfield.board)
-                            print('Prev', session.piece_count, board_updated)
-                            print(prev_playfield.board)
-
-                            if piece_lines_cleared == 0:
-                                board_diff = temp_playfield.board_diff(prev_playfield, defaults['sprint']['num_pieces'], ignore_squares_ingame)
-                                if len(board_diff) != 4:
-                                    print('Missing square here!', len(board_diff))
-                                    print(prev_playfield.board)
-                                    name = defaults['pieces']['names'][current_piece_id]
-                                    print(temp_playfield.board)
-                                    if len(prev_candidates) == 0:
-                                        candidates = temp_playfield.reconstruct_board(defaults['pieces'], prev_playfield, defaults['pieces'][name])
-                                    else:
-                                        candidates = temp_playfield.reconstruct_board_from_candidates(defaults['pieces'], prev_playfield, prev_candidates, defaults['pieces'][name])
-                                    
-                                    if len(candidates) == 1:
-                                        for c in candidates[0]:
-                                            print('cand', c)
-                                            board_diff = update_board(defaults, c, prev_playfield)
-                                            piece = defaults['pieces']['names'][c[0]]
-                                            print(piece)
-                                            piece_state = np.array(defaults['pieces'][piece]['rotations'][c[2]])
-                                            prev_playfield.hard_drop(piece_state, c[1], c[0])
-                                            
-                                            board_updated += 1
-                                            playfield.update_with(board_diff, current_piece_id, 0)
-                                            board_id.update_with(board_diff, board_updated, session.total_lines)
-
-                                        prev_candidates = []
-                                    else:
-                                        print(len(candidates), ' Found', candidates)
-                                        board_diff = []
-                                        prev_candidates= candidates
-                                        last_playfield = prev_playfield
-                                else:
-                                    board_updated = session.piece_count + 1
-                                    playfield.update_with(board_diff, current_piece_id, 0)
-                                    board_id.update_with(board_diff, board_updated, session.total_lines)
-                                        
-                                playfield.remove_effect(defaults)
-                                playfield.set_current_frame(frame)
-                            
-                        session.piece_count += 1
-                        if session.piece_count > 0:
-                            print('Next changed', session.frame_count, session.piece_count)
-                            hold_frame = -1
-                            if prev_hold_frame >= entry_frame:
-                                hold_frame = prev_hold_frame
-                                session.holds += 1
-                                time_diff = Time.frame_to_time_diff(hold_frame, entry_frame, map_frame_time, defaults['timer'])
-                                session.hold_time += time_diff
-                            if piece_lines_cleared > 0:
-                                session.update_lines(defaults['delay'], piece_lines_cleared)
-                            pc = False
-                            if session.perfect_clear():
-                                pc = True
-                                session.perfect_clears += 1
-                            piece_stat = PieceStats(session.piece_count, current_piece_id, entry_frame, session.frame_count, hold_frame, piece_lines_cleared, pc, current_piece, hold.current_frame, board_diff)
-                            print('Creating ', piece_stat.count, piece_stat.id)
-                            pieces_stats.append(piece_stat)
-                        entry_frame = session.frame_count
-                    else:
-                        first_hold = False
-                    frame_pieces_update = session.frame_count
-                    current_piece = next_piece
-                    current_piece_id = next_piece_id
-                    print('Current piece is now', current_piece_id)
-            
-                    piece_lines_cleared = 0
-                    if camera:
-                        frame_pieces_update += entry_delay
-            if session.frame_count == frame_pieces_update: 
-                next_piece = nexts[0].current_frame
-                next_piece_id = FrameProcessing.map_frame_to_piece(defaults, next_piece, pieces)
-                print('Next piece is ', next_piece_id)
-            if hold_changed(defaults['threshold'], hold, session):
-                if ignore_hold == 0:
-                    ignore_hold = entry_delay
-                    print('Hold changed', session.frame_count)
+            if piece_tracking:
+                    
+                if session.frame_count == timing.start_frame:
+                    next_piece = nexts[0].current_frame
+                    next_piece_id = FrameProcessing.map_frame_to_piece(defaults, next_piece, pieces)
+                    print('Setting next piece id', next_piece_id)
+                if hold_changed(defaults['threshold'], hold, session):
                     if prev_hold is not None:
                         current_piece = prev_hold
                         print('Current id was', current_piece_id, 'hold id was', prev_hold_id)
                         current_piece_id , prev_hold_id = prev_hold_id, current_piece_id
+                        current_piece_name = defaults['pieces']['names'][current_piece_id]
+                        current_piece_column = defaults['pieces'][current_piece_name]['spawn_column'] #change current_piece update into a function later
                         print('Current id is now', current_piece_id, 'hold id is', prev_hold_id)
                     else:
                         first_hold = True 
                         prev_hold_id = current_piece_id
                         print('First Hold. Hold id is', prev_hold_id)
-              
-                    prev_hold_frame = session.frame_count
-                    frame_hold_update = session.frame_count
-                    if camera:
-                        frame_hold_update += entry_delay
-            if session.frame_count == frame_hold_update:
-                print('Updating hold frame', session.frame_count)
-                prev_hold = hold.current_frame
+                if next_changed and not first_hold:
+                    current_piece = next_piece
+                    current_piece_id = next_piece_id
+                    current_piece_name = defaults['pieces']['names'][current_piece_id]
+
+                if session.total_lines == 40:
+                    timing.end_frame = session.frame_count - defaults['timer']['end_count']
+                    ended = True
 
 
-            if session.total_lines == 40:
-                timing.end_frame = session.frame_count - defaults['timer']['end_count']
-                ended = True
 
+                timer_prev_digits = session.timer
+                session.timer = match_digits(frame_digits, numbers, defaults['threshold'])
+                map_frame_time[session.frame_count] = session.timer
+
+                prev_squares_on_top = squares_on_top
+                squares_on_top = piece_on_top(defaults, playfield, ignore_squares)
+
+                temp_playfield = copy.deepcopy(playfield)
+                update_playfield(defaults, temp_playfield, pieces, [])
+
+                #print(temp_playfield.board)
+
+
+            else:
+                if session.frame_count == timing.start_frame:
+                    next_piece = nexts[0].current_frame
+                    next_piece_id = FrameProcessing.map_frame_to_piece(defaults, next_piece, pieces)
+                    print('Setting next piece id', next_piece_id)
+                timer_prev_digits = session.timer
+                if camera:
+                    session.timer = Time.frames_to_time(session.frame_count-timing.start_frame, timing.fps)
+                else:
+                    session.timer = match_digits(frame_digits, numbers, defaults['threshold'])
+                map_frame_time[session.frame_count] = session.timer
+
+                prev_squares_on_top = squares_on_top
+                squares_on_top = piece_on_top(defaults, playfield, ignore_squares)
+                #print('Squares on top:', prev_squares_on_top, squares_on_top)
+                #if prev_squares_on_top > 0 and squares_on_top == 0:
+                    
+                if ignore_line_clear > 0:
+                    ignore_line_clear -= 1
+                else:
+                    temp_lines = line_cleared(defaults['threshold'], playfield)
+                    if len(temp_lines) > 0:
+                        piece_lines_cleared = len(temp_lines)
+                        ignore_line_clear = 20
+                        playfield.clear_lines(temp_lines)
+                        #board_id.clear_lines(temp_lines)
+                        board_updated = session.piece_count+1
+                    if len(temp_lines) == 4:
+                        min_line = min(temp_lines)
+                        board_diff = [(6,0), (6,1), (6,2), (6,3)]
+                        board_id.update_with(board_diff, session.piece_count + 1, session.total_lines)        
+                        expiry = int(defaults['overlay']['tetris_animation']*timing.fps + session.frame_count)
+                        ignore_squares_ingame = update_ignore_tetris(defaults['overlay'], ignore_squares_ingame, playfield.width, playfield.height, min_line, expiry)
+                if ignore_next > 0:
+                    ignore_next -= 1
+                if ignore_hold > 0:
+                    ignore_hold -= 1
+                if next_changed:
+                    entry_delay = np.round(defaults['delay']['entry'] * timing.fps)
+                    if ignore_next == 0:
+                        ignore_next = entry_delay
+                        if not first_hold: #locked piece
+                            if session.piece_count >= 0:
+                                cap.set(cv2.CAP_PROP_POS_FRAMES, session.frame_count-entry_delay-1)
+                                ret, prev_frame = cap.read()
+                                if camera:
+                                    matrix = cv2.getPerspectiveTransform(pts1, pts2)
+                                    prev_frame = cv2.warpPerspective(prev_frame, matrix, (960, 540))
+                                else:
+                                    prev_frame = cv2.resize(prev_frame, (frame_width, frame_height)) 
+                                playfield.set_current_frame(prev_frame)
+                                cap.set(cv2.CAP_PROP_POS_FRAMES, session.frame_count)
+
+                                temp_playfield = copy.deepcopy(playfield)
+                                update_playfield(defaults, temp_playfield, pieces, ignore_squares_ingame)
+                                ignore_squares_ingame = remove_from_ignore(ignore_squares_ingame, session.frame_count)
+                                if prev_playfield is not None:
+                                    temp_playfield.fill_incorrect_squares(prev_playfield)
+
+                                prev_playfield = copy.deepcopy(playfield)
+
+                                print('Session', session.piece_count, board_updated)
+                                print(temp_playfield.board)
+                                print('Prev', session.piece_count, board_updated)
+                                print(prev_playfield.board)
+
+                                if piece_lines_cleared == 0:
+                                    board_diff = temp_playfield.board_diff(prev_playfield, defaults['sprint']['num_pieces'], ignore_squares_ingame)
+                                    if len(board_diff) != 4:
+                                        print('Missing square here!', len(board_diff))
+                                        print(prev_playfield.board)
+                                        name = defaults['pieces']['names'][current_piece_id]
+                                        print(temp_playfield.board)
+                                        if len(prev_candidates) == 0:
+                                            candidates = temp_playfield.reconstruct_board(defaults['pieces'], prev_playfield, defaults['pieces'][name])
+                                        else:
+                                            candidates = temp_playfield.reconstruct_board_from_candidates(defaults['pieces'], prev_playfield, prev_candidates, defaults['pieces'][name])
+                                        
+                                        #Manually fix missing pieces
+                                        #print('Count', session.piece_count)
+                                        #if session.piece_count == 80:
+                                        #    candidates = [[(3, 7, 0)]]
+                                        #if session.frame_count == 954:
+                                        #    candidates = [[(4, 6, 3)]]
+
+                                        
+                                        
+                                        
+                                        if len(candidates) == 1:
+                                            for c in candidates[0]:
+                                                print('cand', c)
+                                                board_diff = update_board(defaults, c, prev_playfield)
+                                                piece = defaults['pieces']['names'][c[0]]
+                                                print(piece)
+                                                piece_state = np.array(defaults['pieces'][piece]['rotations'][c[2]])
+                                                prev_playfield.hard_drop(piece_state, c[1], c[0])
+                                                
+                                                board_updated += 1
+                                                playfield.update_with(board_diff, current_piece_id, 0)
+                                                board_id.update_with(board_diff, board_updated, session.total_lines)
+
+                                            prev_candidates = []
+                                        else:
+                                            print(len(candidates), ' Found', candidates)
+                                            board_diff = []
+                                            prev_candidates= candidates
+                                            last_playfield = prev_playfield
+                                    else:
+                                        board_updated = session.piece_count + 1
+                                        playfield.update_with(board_diff, current_piece_id, 0)
+                                        board_id.update_with(board_diff, board_updated, session.total_lines)
+                                    #print(board_id.board)
+                                            
+                                    playfield.remove_effect(defaults)
+                                    playfield.set_current_frame(frame)
+                                
+                            #prev_frame = frame
+
+                            session.piece_count += 1
+                            if session.piece_count > 0:
+                                print('Next changed', session.frame_count, session.piece_count)
+                                hold_frame = -1
+                                if prev_hold_frame >= entry_frame:
+                                    hold_frame = prev_hold_frame
+                                    session.holds += 1
+                                    time_diff = Time.frame_to_time_diff(hold_frame, entry_frame, map_frame_time, defaults['timer'])
+                                    session.hold_time += time_diff
+                                if piece_lines_cleared > 0:
+                                    session.update_lines(defaults['delay'], piece_lines_cleared)
+                                pc = False
+                                if session.perfect_clear():
+                                    pc = True
+                                    session.perfect_clears += 1
+                                piece_stat = PieceStats(session.piece_count, current_piece_id, entry_frame, session.frame_count, hold_frame, piece_lines_cleared, pc, current_piece, hold.current_frame, board_diff)
+                                print('Creating ', piece_stat.count, piece_stat.id)
+                                pieces_stats.append(piece_stat)
+                            entry_frame = session.frame_count
+                        else:
+                            first_hold = False
+                        frame_pieces_update = session.frame_count
+                        current_piece = next_piece
+                        current_piece_id = next_piece_id
+                        print('Current piece is now', current_piece_id)
+                
+                        piece_lines_cleared = 0
+                        if camera:
+                            frame_pieces_update += entry_delay
+                if session.frame_count == frame_pieces_update: 
+                    next_piece = nexts[0].current_frame
+                    next_piece_id = FrameProcessing.map_frame_to_piece(defaults, next_piece, pieces)
+                    print('Next piece is ', next_piece_id)
+                if hold_changed(defaults['threshold'], hold, session):
+                    if ignore_hold == 0:
+                        ignore_hold = entry_delay
+                        print('Hold changed', session.frame_count)
+                        if prev_hold is not None:
+                            current_piece = prev_hold
+                            print('Current id was', current_piece_id, 'hold id was', prev_hold_id)
+                            current_piece_id , prev_hold_id = prev_hold_id, current_piece_id
+                            print('Current id is now', current_piece_id, 'hold id is', prev_hold_id)
+                        else:
+                            first_hold = True 
+                            prev_hold_id = current_piece_id
+                            print('First Hold. Hold id is', prev_hold_id)
+                
+                        prev_hold_frame = session.frame_count
+                        frame_hold_update = session.frame_count
+                        if camera:
+                            frame_hold_update += entry_delay
+                if session.frame_count == frame_hold_update:
+                    print('Updating hold frame', session.frame_count)
+                    prev_hold = hold.current_frame
+
+
+                if session.total_lines == 40:
+                    timing.end_frame = session.frame_count - defaults['timer']['end_count']
+                    ended = True
+
+                # if np.array_equal(timer_prev_digits, session.timer) or session.frame_count >= timing.end_frame:
+                #     end_count += 1
+                #     if camera:
+                #         session.timer = final_time
+                #     if end_count >= defaults['timer']['end_count']:
+                #         timing.end_frame = session.frame_count - defaults['timer']['end_count']
+                #         print("  Final time:", session.timer, timing.end_frame)
+                #         ended = True
+                # else:
+                #     end_count = 0
         if session.frame_count > timing.start_frame and session.frame_count < timing.start_frame + timing.fps and not digits_read:
             frame_count_diff = session.frame_count - timing.start_frame
             div = round(timing.fps)//10
@@ -684,13 +781,18 @@ def process_video(video_name):
                 print("Digits read", len(numbers))
                 numbers = store_number(numbers, frame_digits[defaults['timer']['decisecond']], defaults['threshold']['digit'])
                 if len(numbers) == defaults['timer']['numbers']:
+                    #frame_count = advance_time(frame_count,fps,defaults['timer']['time_advance'])
                     digits_read = True                    
+                    #cap.set(cv2.CAP_PROP_POS_FRAMES,frame_count)
 
         if not training_complete and background_top and digits_read and pieces_read:
             cap.set(cv2.CAP_PROP_POS_FRAMES,0)
             training_complete = True
 
         back_diff = Draw.draw_background_diff(playfield, hold, frame)
+        #if session.frame_count > 1:
+        #    prev_diff = Draw.draw_previous_frame_diff(playfield, hold, frame, nexts)
+        #current = Draw.draw_current_frame(defaults, playfield, frame_digits, current_piece, next_piece, frame)
 
         last_piece_time = []
         if session.piece_count > 0:
@@ -706,6 +808,9 @@ def process_video(video_name):
             original_frame = Draw.draw_pieces_stats(defaults, original_frame, pieces_stats, frame_width, frame_height, map_frame_time, timing, session)
             original_frame = Draw.draw_lines_stats(defaults, original_frame, frame_width, frame_height, timing, session, last_piece_time)
             original_frame = Draw.draw_playfield(defaults, original_frame, frame_width, frame_height, board_id, pieces_stats, timing, map_frame_time)
+            #original_frame = Draw.draw_player_info(defaults['layout']['player'], original_frame, frame_width, frame_height, player_name)
+        
+        #original_frame = Draw.draw_histogram(defaults, original_frame, pieces_stats, frame_width, frame_height, map_frame_time, timing, session) 
 
         print("Frame", session.frame_count, "/", total_frames, session.timer)
         if recording:
@@ -715,10 +820,15 @@ def process_video(video_name):
             recording = True
 
         cv2.imshow('frame',original_frame)
+        #if prev_frame is not None:
+        #    cv2.imshow('timer', prev_frame)
+        #cv2.imshow('back_diff',back_diff)
+        #if session.frame_count > 1:
+        #    cv2.imshow('prev_diff',prev_diff)
 
         key = cv2.waitKey(1)
-#        while key not in [ord('q'), ord('k'),ord('l')]:
-#            key = cv2.waitKey(0)
+        #while key not in [ord('q'), ord('k'),ord('l')]:
+        #    key = cv2.waitKey(0)
         if key == ord('l'):
             session.frame_count -= 5
             if session.frame_count < 0:
@@ -733,7 +843,4 @@ def process_video(video_name):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print('Error! Missing path to video')
-    else:
-        process_video(sys.argv[1])
+    process_video(True)

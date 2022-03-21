@@ -52,7 +52,7 @@ class Playfield:
     def fill_incorrect_squares(self, target):
         diff = self.board - target.board
         coords = np.argwhere((diff < 0))
-        print(coords)
+        #print(coords)
         for [y, x] in coords:
             self.board[y][x] = 1
 
