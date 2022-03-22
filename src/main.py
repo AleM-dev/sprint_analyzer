@@ -350,7 +350,7 @@ def advance_time(frame_count, fps, s): #advances s seconds to find the final tim
     frame_count += s*fps
     return frame_count    
 
-def process_video(video_name, total_pieces = 100):
+def process_video(video_name, total_pieces):
 
     session = SessionStats()
     pieces_stats = []
@@ -737,4 +737,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print('Error! Missing path to video')
     else:
-        process_video(sys.argv[1], sys.argv[2])
+        total_pieces = 100
+        if len(sys.argv) == 3:
+            total_pieces = sys.argv[2]
+        process_video(sys.argv[1], total_pieces)
