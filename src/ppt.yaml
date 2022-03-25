@@ -189,8 +189,8 @@ timer: #digits of the timer
   second_unit: 2
   decisecond: 3
   centisecond: 4
-  min_xs: [1456, 1537, 1579, 1660, 1699] 
-#  min_xs: [1450, 1530, 1570, 1650, 1690] #me
+#  min_xs: [1456, 1537, 1579, 1660, 1699] 
+  min_xs: [1450, 1530, 1570, 1650, 1690] #me
   #min_xs: [1495, 1575, 1615, 1695, 1735]
   #min_y: 512
   min_y: 498
@@ -228,7 +228,7 @@ threshold: #used to detect changes in the frame
   square_diff: 10 #>10 means the square is filled with a piece
   piece_diff: 5 #>5 means a change in the held piece or in the "Next" queue
   line_clear: 128 #>128 means a line was cleared
-  piece_intensity: 48 #>48 it is a filled square in the 'Next' queue
+  piece_intensity: 64 #>48 it is a filled square in the 'Next' queue
   digit: 224 #>224 is the color of a digit
   match: 0.6 #>0.8 means a pattern match
   zero_min_area: 0.1 #not considered a '0' if area < 0.1
